@@ -17,7 +17,6 @@ import Prelude hiding ( take, drop, reverse
 -- When you are allowed to use builtin functions Prepend them with "P."
 -- for example `P.take`
 import qualified Prelude as P
-import Control.Monad.Cont (label)
 
 --- Problems
 --- ========
