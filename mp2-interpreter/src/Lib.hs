@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Lib where
 import Data.HashMap.Strict as H (HashMap, empty, fromList, insert, lookup, union)
 
@@ -85,13 +87,15 @@ compOps = H.fromList [ ("<", (<))
 
 liftIntOp :: (Int -> Int -> Int) -> Val -> Val -> Val
 liftIntOp op (IntVal x) (IntVal y) = IntVal $ op x y
-liftIntOp _ _ _ = ExnVal "Cannot lift"
+liftIntOp _ _ _ = ExnVal "No matching operator"
 
 liftBoolOp :: (Bool -> Bool -> Bool) -> Val -> Val -> Val
-liftBoolOp = undefined
+liftBoolOp op (BoolVal x) (BoolVal y) = BoolVal $ op x y
+liftBoolOp _ _ _ = ExnVal "No matching operator"
 
 liftCompOp :: (Int -> Int -> Bool) -> Val -> Val -> Val
-liftCompOp = undefined
+liftCompOp op (IntVal x) (IntVal y) = BoolVal $ op x y
+liftCompOp _ _ _ = ExnVal "No matching operator"
 
 --- Eval
 --- ----
@@ -100,12 +104,16 @@ eval :: Exp -> Env -> Val
 
 --- ### Constants
 
-eval (IntExp i)  _ = undefined
-eval (BoolExp i) _ = undefined
+eval (IntExp i)  _ = (IntVal i)
+eval (BoolExp i) _ = (BoolVal i)
 
 --- ### Variables
 
-eval (VarExp s) env = undefined
+eval (VarExp s) env = result (H.lookup s env)
+    where 
+        result (Just a) = a
+        result (Nothing)=  (ExnVal "No match in env")
+
 
 --- ### Arithmetic
 
@@ -131,6 +139,7 @@ eval (AppExp e1 args) env = undefined
 
 eval (LetExp pairs body) env = undefined
 
+eval _ _ =  (ExnVal "Cannot eval")
 --- Statements
 --- ----------
 
