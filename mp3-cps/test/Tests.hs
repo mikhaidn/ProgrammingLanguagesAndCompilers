@@ -136,6 +136,7 @@ expAp = [ "f a"
         , "f (g (h i))"
         , "f (g (h (4 * 2)))"
         ]
+
 expApK :: [String]
 expApK = [ "f a k"
          , "f (g + 3) k"
@@ -188,15 +189,19 @@ expSimpIfK = [ "if 3 < 5 then k (44 + x) else k (14 * 2)"
 
 tests_cpsExp_simpIf :: [Bool]
 tests_cpsExp_simpIf = cpsExpAll (expSimpIf, expSimpIfK)
-
 expNonSimpIf :: [String]
 expNonSimpIf = [ "if p (3 + a) then 15 + 7 else 12"
                , "if 3 < (f a) then 15 * g k else 232"
                , "17 * 8 + (if f a then b else c d)"
                ]
 expNonSimpIfK :: [String]
+
+fumma = [
+ "17 * 8 + (if f a then b else c d)"
+         ]
 expNonSimpIfK = [ "p (3 + a) (\\v1 -> (if v1 then k (15 + 7) else k 12))"
                 , "f a (\\v3 -> (\\v1 -> (if v1 then g k (\\v2 -> k (15 * v2)) else k 232)) (3 < v3))"
+                -- f a (\\v2 -> (if v2 then (\\v1 -> k ((17 * 8) + v1)) b else (\v1 -> k ((17 * 8) + v1)) c d))]
                 , "f a (\\v2 -> (if v2 then (\\v1 -> k ((17 * 8) + v1)) b else c d (\\v1 -> k ((17 * 8) + v1))))"
                 ]
 

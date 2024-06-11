@@ -110,43 +110,48 @@ isSimple (AppExp _ _) = False
 
 cpsExp :: Exp -> Exp -> Integer -> (Exp, Integer)
 --- #### Define `cpsExp` for Integer and Variable Expressions
-cpsExp e@(IntExp _) k i =
-  let (_, ni) = (gensym i)
-   in (AppExp k e, ni)
-cpsExp e@(VarExp _) k i =
-  let (_, ni) = (gensym i)
-   in (AppExp k e, ni)
+cpsExp e@(IntExp _) k i = (AppExp k e, i)
+cpsExp e@(VarExp _) k i = (AppExp k e, i)
 --- #### Define `cpsExp` for Application Expressions
-cpsExp (AppExp f e) k i =
+cpsExp p@(AppExp f e) k i =
   case (isSimple e) of
-    True ->
-      let (_, ni) = (gensym i)
-       in (AppExp k (AppExp f e), ni)
+    True -> (AppExp p k, i)
     False ->
       let (v, ni) = (gensym i)
-       in let (v2, ni2) = (gensym ni)
-           in ( ( AppExp
-                    k
-                    ( AppExp
-                        e
-                        ( LamExp
-                            v
-                            ( AppExp
-                                f
-                                (VarExp v)
-                            )
-                        )
-                    )
-                ),
-                ni
-              )
-cpsExp _ _ _ = undefined
-
+       in (cpsExp e (LamExp v (AppExp (AppExp f (VarExp v)) k)) ni)
 --- #### Define `cpsExp` for Operator Expressions
-
+cpsExp p@(OpExp o e1 e2) k i = case (isSimple e1, isSimple e2) of
+  (True, True) -> (AppExp k p, i)
+  (False, True) ->
+    let (v, ni) = (gensym i)
+     in (cpsExp e1 (LamExp v (AppExp k (OpExp o (VarExp v) e2))) ni)
+  (True, False) ->
+    let (v, ni) = (gensym i)
+     in (cpsExp e2 (LamExp v (AppExp k (OpExp o e1 (VarExp v)))) ni)
+  (False, False) ->
+    let (v1, ni) = gensym i
+        (v2, nii) = gensym ni
+        (ne1, niii) = cpsExp e2 (LamExp v2 (AppExp k (OpExp o (VarExp v1) (VarExp v2)))) ni
+     in cpsExp e1 (LamExp v1 ne1) niii
 --- #### Define `cpsExp` for If Expressions
+
+cpsExp p@(IfExp e1 e2 e3) k i =
+  case (isSimple e1) of
+    True ->
+      let (nv, ni) = (cpsExp e2 k i)
+          (nvv, nii) = (cpsExp e3 k ni)
+       in (IfExp e1 nv nvv, i)
+    False ->
+      let (v, ni) = (gensym i)
+          (nv, nii) = (cpsExp e2 k ni)
+          (nvv, niii) = (cpsExp e3 k nii)
+       in (cpsExp e1 (LamExp v (IfExp (VarExp v) nv nvv)) niii)
 
 --- ### Define `cpsDecl`
 
+
 cpsDecl :: Stmt -> Stmt
-cpsDecl = undefined
+cpsDecl (Decl fname params e) = 
+    let k = "k"
+        (v, _) = cpsExp e (VarExp k) 0
+   in Decl fname (params ++ [k]) v
