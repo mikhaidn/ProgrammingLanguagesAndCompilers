@@ -1,0 +1,14 @@
+/Users/danmikhail/.stack/programs/aarch64-osx/ghc-8.10.7/lib/ghc-8.10.7/include/ghcversion.h:
+  hash: c013160c9aa8a98f4638616496dce720c23ceca8ef9d6b3212b654642fbda5e4
+? /Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/.stack-work/dist/aarch64-osx/ghc-8.10.7/build/autogen/Paths_mp4_forth.hs
+: hash: d5f91e419aab3ccd6fabbf22229300a4a473c0d7efda46b807684a758ba73f7f
+? /Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/.stack-work/dist/aarch64-osx/ghc-8.10.7/build/autogen/cabal_macros.h
+: hash: b2591219df691f6a1bf75e2ee16cce2e0eece79ad5d0c71a7eb4783ff3531986
+/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/README.md:
+  hash: 6a41c4446cc1d725548693b3d7245b4833c3c948eb87fa333a04eefd2a06e444
+/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/mp4-forth.cabal:
+  hash: 0143ca18354fce30765205a5c97682cd9a69bc7a1aba96ef1015cb97166448d7
+/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/package.yaml:
+  hash: 45b4efdbff114831ced6773d250834a052397f50f3aa3efae3a291caa971ccd2
+/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp4-forth/src/Lib.hs:
+  hash: 84447b33d33aeae2a3e94430e699033f76923232155f6864362dd460c39dd69b
