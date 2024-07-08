@@ -1,4 +1,5 @@
-mp2-interpreter/.stack-work/
+mp2-interpreter/
 .DS_Store
 mp3-cps/stack.yaml
 mp3-cps/.stack-work
+mp5-scheme/.stack-work/dist/aarch64-osx/ghc-8.10.7/stack-cabal-mod
