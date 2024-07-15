@@ -29,12 +29,12 @@ version :: Version
 version = Version [0,2,0,0] []
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 
-bindir     = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/bin"
-libdir     = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/lib/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0-CHegeXpFnh59B9qbCKR8EF-mp5-scheme"
-dynlibdir  = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/lib/aarch64-osx-ghc-8.10.7"
-datadir    = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/share/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0"
-libexecdir = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/libexec/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0"
-sysconfdir = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/dffca695e282a5dbd8671bb35935fc41053977c1dfb4f667d0ed7868264adcf0/8.10.7/etc"
+bindir     = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/bin"
+libdir     = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/lib/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0-8XjINX525zN3P9XtktX39G-mp5-scheme"
+dynlibdir  = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/lib/aarch64-osx-ghc-8.10.7"
+datadir    = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/share/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0"
+libexecdir = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/libexec/aarch64-osx-ghc-8.10.7/mp5-scheme-0.2.0.0"
+sysconfdir = "/Users/danmikhail/git/ProgrammingLanguagesAndCompilers/mp5-scheme/.stack-work/install/aarch64-osx/75a682f6f2fa22269098ed73fc07efe5d8a0059ad58ca9ceb4aa12f3449b8bf3/8.10.7/etc"
 
 getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: IO FilePath
 getBinDir = catchIO (getEnv "mp5_scheme_bindir") (\_ -> return bindir)

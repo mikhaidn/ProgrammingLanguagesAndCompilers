@@ -22,6 +22,17 @@
   (major1) == 4 && (major2) == 14 && (minor) <= 3)
 #endif /* MIN_VERSION_base */
 
+/* package mp5-scheme-0.2.0.0 */
+#ifndef VERSION_mp5_scheme
+#define VERSION_mp5_scheme "0.2.0.0"
+#endif /* VERSION_mp5_scheme */
+#ifndef MIN_VERSION_mp5_scheme
+#define MIN_VERSION_mp5_scheme(major1,major2,minor) (\
+  (major1) <  0 || \
+  (major1) == 0 && (major2) <  2 || \
+  (major1) == 0 && (major2) == 2 && (minor) <= 0)
+#endif /* MIN_VERSION_mp5_scheme */
+
 /* package mtl-2.2.2 */
 #ifndef VERSION_mtl
 #define VERSION_mtl "2.2.2"
@@ -132,12 +143,12 @@
   (major1) == 8 && (major2) == 10 && (minor) <= 7)
 #endif /* MIN_TOOL_VERSION_runghc */
 
-#ifndef CURRENT_PACKAGE_KEY
-#define CURRENT_PACKAGE_KEY "mp5-scheme-0.2.0.0-GWnNXhThEvC3EswzsoAh3a"
-#endif /* CURRENT_PACKAGE_KEY */
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "mp5-scheme-0.2.0.0-GWnNXhThEvC3EswzsoAh3a"
+#define CURRENT_COMPONENT_ID "mp5-scheme-0.2.0.0-CHegeXpFnh59B9qbCKR8EF-mp5-scheme"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.2.0.0"
 #endif /* CURRENT_PACKAGE_VERSION */
+
+#undef CURRENT_PACKAGE_KEY
+#undef CURRENT_COMPONENT_ID

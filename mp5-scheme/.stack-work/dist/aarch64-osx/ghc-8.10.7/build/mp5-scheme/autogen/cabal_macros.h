@@ -144,7 +144,7 @@
 #endif /* MIN_TOOL_VERSION_runghc */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "mp5-scheme-0.2.0.0-CHegeXpFnh59B9qbCKR8EF-mp5-scheme"
+#define CURRENT_COMPONENT_ID "mp5-scheme-0.2.0.0-8XjINX525zN3P9XtktX39G-mp5-scheme"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.2.0.0"
