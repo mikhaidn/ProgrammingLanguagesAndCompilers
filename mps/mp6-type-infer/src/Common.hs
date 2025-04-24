@@ -1,17 +1,18 @@
-{-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+
 module Common where
 
 import Control.Monad.Except
 import Control.Monad.State
 import Control.Monad.Writer
-
 import Data.Char
-import Data.List ((\\), intercalate, union)
-import qualified Data.Map.Strict as H (Map, (!), delete, insert, lookup, union, empty, singleton, fromList, toList, elems, keys)
+import Data.List (intercalate, union, (\\))
+import qualified Data.Map.Strict as H (Map, delete, elems, empty, fromList, insert, keys, lookup, singleton, toList, union, (!))
 
 {- language definition -}
 
-data Const 
+data Const
   = IntConst Int
   | BoolConst Bool
   | StringConst String
@@ -20,10 +21,18 @@ data Const
 
 data Monop = HdOp | TlOp | PrintOp | IntNegOp | FstOp | SndOp | NotOp
 
-data Binop = IntPlusOp | IntMinusOp | IntTimesOp | IntDivOp
-  | ConcatOp | ConsOp | CommaOp | EqOp | GreaterOp
+data Binop
+  = IntPlusOp
+  | IntMinusOp
+  | IntTimesOp
+  | IntDivOp
+  | ConcatOp
+  | ConsOp
+  | CommaOp
+  | EqOp
+  | GreaterOp
 
-data Exp 
+data Exp
   = ConstExp Const
   | VarExp String
   | MonOpExp Monop Exp
@@ -94,15 +103,16 @@ instance Show Dec where
 type VarId = Int
 
 -- | Monomorphic types
-data MonoTy = TyVar VarId | TyConst String [MonoTy] deriving Eq
+data MonoTy = TyVar VarId | TyConst String [MonoTy] deriving (Eq)
+
 -- | Polymorphic types
 data PolyTy = Forall [VarId] MonoTy
 
 intTy, boolTy, stringTy, unitTy :: MonoTy
-intTy    = TyConst "int" []
-boolTy   = TyConst "bool" []
+intTy = TyConst "int" []
+boolTy = TyConst "bool" []
 stringTy = TyConst "string" []
-unitTy   = TyConst "unit" []
+unitTy = TyConst "unit" []
 
 -- | Given 'a, construct the type 'a list.
 listTy :: MonoTy -> MonoTy
@@ -115,7 +125,7 @@ pairTy t1 t2 = TyConst "pair" [t1, t2]
 -- | Given an argument type 'a and a result type 'b, construct
 -- the function type 'a -> 'b.
 funTy :: MonoTy -> MonoTy -> MonoTy
-funTy t1 t2  = TyConst "->" [t1, t2]
+funTy t1 t2 = TyConst "->" [t1, t2]
 
 -- | Typing environments (Gamma) map names to polytypes.
 -- If you want to put a monotype in the environment, you need
@@ -136,8 +146,9 @@ tVarName i = ['\'', chr (ord 'a' + i)]
 -- | takes a group of MonoTys and creates a canonical renaming for all variables
 -- appearing in any of them.
 canonize :: (Functor f, Foldable f) => f MonoTy -> CanonEnv
-canonize taus = H.fromList $ zip allFreeVars [0..]
-  where allFreeVars = unions $ fmap freeVars taus
+canonize taus = H.fromList $ zip allFreeVars [0 ..]
+  where
+    allFreeVars = unions $ fmap freeVars taus
 
 instance Show MonoTy where
   show tau = showMonoTyWith (canonize [tau]) tau
@@ -146,9 +157,11 @@ instance Show PolyTy where
   show (Forall [] tau) = show tau
   show (Forall qVars tau) =
     -- lookup each qVar in cenv, get the tVarName, and stick "forall" in front
-    unwords ("forall" : map (tVarName . (cenv H.!)) qVars) 
-    ++ ". " ++ showMonoTyWith cenv tau
-    where cenv = canonize [tau]
+    unwords ("forall" : map (tVarName . (cenv H.!)) qVars)
+      ++ ". "
+      ++ showMonoTyWith cenv tau
+    where
+      cenv = canonize [tau]
 
 -- | Show a MonoTy, but using a given CanonEnv.
 showMonoTyWith :: CanonEnv -> MonoTy -> String
@@ -156,7 +169,7 @@ showMonoTyWith env = go
   where
     go (TyVar i) = case H.lookup i env of
       Nothing -> show i
-      Just x  -> tVarName x
+      Just x -> tVarName x
     go (TyConst "->" [tau1, tau2]) =
       "(" ++ unwords [go tau1, "->", go tau2] ++ ")"
     go (TyConst "pair" [tau1, tau2]) =
@@ -167,23 +180,28 @@ showMonoTyWith env = go
     -- definition would look like this.
     go (TyConst c ts) = unwords (map go ts ++ [c])
 
-  {- error definitions -}
+{- error definitions -}
 
 data TypeError
-  = InfiniteType VarId MonoTy -- ^ Occurs check failure
-  | Can'tMatch MonoTy MonoTy  -- ^ type constructors in constraint don't match
-  | LookupError String        -- ^ variable name not in the TypeEnv
+  = -- | Occurs check failure
+    InfiniteType VarId MonoTy
+  | -- | type constructors in constraint don't match
+    Can'tMatch MonoTy MonoTy
+  | -- | variable name not in the TypeEnv
+    LookupError String
 
 instance Show TypeError where
-  show (InfiniteType a tau) = 
+  show (InfiniteType a tau) =
     unwords ["Can't construct infinite type", aName, "~", showTau]
-    where canonEnv = canonize [tau] -- a is always a free variable of tau
-          aName   = showMonoTyWith canonEnv (TyVar a)
-          showTau = showMonoTyWith canonEnv tau
-  show (Can'tMatch t1 t2) = 
+    where
+      canonEnv = canonize [tau] -- a is always a free variable of tau
+      aName = showMonoTyWith canonEnv (TyVar a)
+      showTau = showMonoTyWith canonEnv tau
+  show (Can'tMatch t1 t2) =
     unwords ["Can't solve constraint:", showType t1, "~", showType t2]
-    where canonEnv = canonize [t1, t2]
-          showType = showMonoTyWith canonEnv
+    where
+      canonEnv = canonize [t1, t2]
+      showType = showMonoTyWith canonEnv
   show (LookupError x) = "Failed lookup of variable: " ++ x
 
 {- type inference monad -}
@@ -197,32 +215,40 @@ instance Show TypeError where
 -- of things that have happened, etc.
 --
 -- In our case, we want three effects, so we make a "stack" of 3 monads.
--- 
+--
 -- The outermost is WriterT (T stands for Transformer, again). The
 -- "writer" effect keeps track of a growing "log" behind the scenes,
 -- making sure that logs produced by each action are accumulated
 -- with logs produced by previous actions. We'll use a writer effect to
 -- manage our growing list of constraints.
--- 
+--
 -- The next one down is ExceptT. The "except" effect, unsurprisingly, handles
 -- exceptions.
 --
 -- Finally, we have State. It's State, instead of StateT, because it is on
 -- the bottom of the stack (it isn't transforming anything). We'll use the
 -- state effect to keep a counter for generating fresh type variables.
-type Infer a = WriterT [Constraint] 
-                (ExceptT TypeError 
-                (State FVCounter)) a
+type Infer a =
+  WriterT
+    [Constraint]
+    ( ExceptT
+        TypeError
+        (State FVCounter)
+    )
+    a
 
 -- | The "Free Variable Counter" for generating fresh names
 type FVCounter = Int
+
 -- | tau1 :~: tau2 demonstrates the constraint that tau1 ~ tau2.
 data Constraint = MonoTy :~: MonoTy
 
 instance Show Constraint where
   show (tau1 :~: tau2) = unwords [t1, "~", t2]
-    where cenv = canonize [tau1, tau2]
-          [t1,t2] = map (showMonoTyWith cenv) [tau1, tau2]
+    where
+      cenv = canonize [tau1, tau2]
+      [t1, t2] = map (showMonoTyWith cenv) [tau1, tau2]
+
 instance Type Constraint where
   apply subst (tau1 :~: tau2) = apply subst tau1 :~: apply subst tau2
   freeVars (tau1 :~: tau2) = freeVars tau1 `union` freeVars tau2
@@ -274,7 +300,7 @@ class Type t where
 
 instance Type MonoTy where
   apply subst (TyVar i) = case H.lookup i subst of
-    Nothing  -> TyVar i 
+    Nothing -> TyVar i
     Just tau -> tau
   apply subst (TyConst c tauList) = TyConst c $ map (apply subst) tauList
 
@@ -283,8 +309,9 @@ instance Type MonoTy where
 
 instance Type PolyTy where
   apply subst (Forall qVars tau) = Forall qVars $ apply subst' tau
-    where subst' = foldr H.delete subst qVars
-  
+    where
+      subst' = foldr H.delete subst qVars
+
   freeVars (Forall qVars tau) = freeVars tau \\ qVars
 
 instance Type TypeEnv where
@@ -312,63 +339,66 @@ substCompose s1 s2 = s1 `H.union` fmap (apply s1) s2
 -- and there is already an instance (Show k, Show v) => Show (H.Map k v)
 showSubstitution :: Substitution -> String
 showSubstitution subst = "{" ++ intercalate ", " mappings ++ "}"
-  where cenv = H.empty -- canonize $ H.elems subst ++ map TyVar (H.keys subst)
-                       -- use the above defn. instead of H.empty if you want to
-                       -- print a substitution for debugging purposes,
-                       -- but it makes the tests angry.
-                       -- We could change the tests to match, but we think the
-                       -- tests cases are easier to read with integer VarIds,
-                       -- so that the outputs match the inputs.
-        varidName varid = case H.lookup varid cenv of
-          Nothing -> show varid
-          Just rn -> tVarName rn
-        showMapping (varid, tau) = unwords
-          [varidName varid, "->", showMonoTyWith cenv tau]
-        -- H.toList is defined as toList = toAscList, so they are sorted
-        mappings = map showMapping $ H.toList subst
+  where
+    cenv = H.empty -- canonize $ H.elems subst ++ map TyVar (H.keys subst)
+    -- use the above defn. instead of H.empty if you want to
+    -- print a substitution for debugging purposes,
+    -- but it makes the tests angry.
+    -- We could change the tests to match, but we think the
+    -- tests cases are easier to read with integer VarIds,
+    -- so that the outputs match the inputs.
+    varidName varid = case H.lookup varid cenv of
+      Nothing -> show varid
+      Just rn -> tVarName rn
+    showMapping (varid, tau) =
+      unwords
+        [varidName varid, "->", showMonoTyWith cenv tau]
+    -- H.toList is defined as toList = toAscList, so they are sorted
+    mappings = map showMapping $ H.toList subst
 
 {- auxiliary functions for type inferencing -}
 
 -- | Get the (polytype) signature of a constant.
 -- All type variables are quantified.
 constTySig :: Const -> PolyTy
-constTySig IntConst{}    = Forall [] intTy
-constTySig BoolConst{}   = Forall [] boolTy
-constTySig StringConst{} = Forall [] stringTy
-constTySig UnitConst     = Forall [] unitTy
-constTySig NilConst      = Forall [0] $ listTy $ TyVar 0
+constTySig IntConst {} = Forall [] intTy
+constTySig BoolConst {} = Forall [] boolTy
+constTySig StringConst {} = Forall [] stringTy
+constTySig UnitConst = Forall [] unitTy
+constTySig NilConst = Forall [0] $ listTy $ TyVar 0
 
 -- | Get the (polytype) signature of a monop.
 -- All type variables are quantified.
 monopTySig :: Monop -> PolyTy
-monopTySig HdOp     = Forall [0]   $ funTy (listTy (TyVar 0)) (TyVar 0)
-monopTySig TlOp     = Forall [0]   $ funTy lTau lTau where lTau = listTy (TyVar 0)
-monopTySig PrintOp  = Forall []    $ funTy stringTy unitTy
-monopTySig IntNegOp = Forall []    $ funTy intTy intTy
-monopTySig FstOp    = Forall [0,1] $ funTy (pairTy (TyVar 0) (TyVar 1)) (TyVar 0)
-monopTySig SndOp    = Forall [0,1] $ funTy (pairTy (TyVar 0) (TyVar 1)) (TyVar 1)
-monopTySig NotOp    = Forall []    $ funTy boolTy boolTy
+monopTySig HdOp = Forall [0] $ funTy (listTy (TyVar 0)) (TyVar 0)
+monopTySig TlOp = Forall [0] $ funTy lTau lTau where lTau = listTy (TyVar 0)
+monopTySig PrintOp = Forall [] $ funTy stringTy unitTy
+monopTySig IntNegOp = Forall [] $ funTy intTy intTy
+monopTySig FstOp = Forall [0, 1] $ funTy (pairTy (TyVar 0) (TyVar 1)) (TyVar 0)
+monopTySig SndOp = Forall [0, 1] $ funTy (pairTy (TyVar 0) (TyVar 1)) (TyVar 1)
+monopTySig NotOp = Forall [] $ funTy boolTy boolTy
 
 -- | Get the (polytype) signature of a binop.
 -- All type variables are quantified.
 binopTySig :: Binop -> PolyTy
-binopTySig IntPlusOp  = Forall [] intBinopTy
+binopTySig IntPlusOp = Forall [] intBinopTy
 binopTySig IntMinusOp = Forall [] intBinopTy
 binopTySig IntTimesOp = Forall [] intBinopTy
-binopTySig IntDivOp   = Forall [] intBinopTy
-binopTySig ConcatOp   = Forall [] $ binopFunTy stringTy stringTy stringTy
-binopTySig ConsOp     = Forall [0] $ binopFunTy (TyVar 0) lTau lTau
-  where lTau = listTy (TyVar 0)
-
-binopTySig CommaOp    = Forall [0,1] $ binopFunTy a b (pairTy a b)
-  where a = TyVar 0; b = TyVar 1
-
-binopTySig EqOp       = Forall [0] $ binopFunTy (TyVar 0) (TyVar 0) boolTy
-binopTySig GreaterOp  = Forall []  $ binopFunTy intTy intTy boolTy
+binopTySig IntDivOp = Forall [] intBinopTy
+binopTySig ConcatOp = Forall [] $ binopFunTy stringTy stringTy stringTy
+binopTySig ConsOp = Forall [0] $ binopFunTy (TyVar 0) lTau lTau
+  where
+    lTau = listTy (TyVar 0)
+binopTySig CommaOp = Forall [0, 1] $ binopFunTy a b (pairTy a b)
+  where
+    a = TyVar 0; b = TyVar 1
+binopTySig EqOp = Forall [0] $ binopFunTy (TyVar 0) (TyVar 0) boolTy
+binopTySig GreaterOp = Forall [] $ binopFunTy intTy intTy boolTy
 
 -- If we wanted, we could write a function to make function types with any
 -- number of arguments. How might you do that?
 -- Hint: try using foldr
+
 -- | Construct the type of a function with 2 arguments.
 binopFunTy :: MonoTy -> MonoTy -> MonoTy -> MonoTy
 binopFunTy arg1 arg2 res = funTy arg1 (funTy arg2 res)
